@@ -5,39 +5,44 @@ using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
 using MyShop.DataAccess.InMemory;
+using MyShop.Core.ViewModels;
 
 namespace MyShop.WebUI.Controllers
 {
     public class ProductManagerController : Controller
     {
         ProductRepository context;
+        ProductCategoryRepository productCategories;
 
         public ProductManagerController()
         {
             context = new ProductRepository();
+            productCategories = new ProductCategoryRepository();
         }
 
         // GET: ProductManager
         [HttpGet]
         public ActionResult Index()
-        {
-            var products = context.Collection();
+        {            
+            var products = context.Collection();            
             return View(products);
         }
 
         [HttpGet]
         public ActionResult Create()
         {
-            var product = new Product();
-            return View(product);
+            var productManagerViewModel = new ProductManagerViewModel();
+            productManagerViewModel.Product = new Product();
+            productManagerViewModel.Categories = productCategories.Collection();
+            return View(productManagerViewModel);
         }
 
         [HttpPost]
-        public ActionResult Create(Product productToAdd)
+        public ActionResult Create(ProductManagerViewModel productToAdd)
         {
             if (ModelState.IsValid)
             {
-                context.Insert(productToAdd);
+                context.Insert(productToAdd.Product);
                 context.Commit();
                 return RedirectToAction("Index", "ProductManager");
             }
@@ -50,10 +55,13 @@ namespace MyShop.WebUI.Controllers
         [HttpGet]
         public ActionResult Edit(string id)
         {
+            var productManagerViewModel = new ProductManagerViewModel();
             var productToEdit = context.Find(id);
             if (productToEdit != null)
             {
-                return View(productToEdit);
+                productManagerViewModel.Product = productToEdit;
+                productManagerViewModel.Categories = productCategories.Collection();
+                return View(productManagerViewModel);
             }
             else
             {
@@ -61,18 +69,18 @@ namespace MyShop.WebUI.Controllers
             }
         }
 
-        public ActionResult Edit(string id, Product productEdited)
+        public ActionResult Edit(string id, ProductManagerViewModel productEdited)
         {
             var product = context.Find(id);
             if (product != null)
             { 
                 if (ModelState.IsValid)
                 {
-                    product.Name = productEdited.Name;
-                    product.Price = productEdited.Price;
-                    product.Image = productEdited.Image;
-                    product.Description = productEdited.Description;
-                    product.Category = productEdited.Category;
+                    product.Name = productEdited.Product.Name;
+                    product.Price = productEdited.Product.Price;
+                    product.Image = productEdited.Product.Image;
+                    product.Description = productEdited.Product.Description;
+                    product.Category = productEdited.Product.Category;
                     context.Update(product);
                     context.Commit();
                     return RedirectToAction("Index");
