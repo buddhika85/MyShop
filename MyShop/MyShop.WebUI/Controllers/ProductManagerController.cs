@@ -15,7 +15,7 @@ namespace MyShop.WebUI.Controllers
         IRepository<Product> context;
         IRepository<ProductCategory> productCategories;
 
-        public ProductManagerController(InMemoryRepository<Product> productContext, InMemoryRepository<ProductCategory> productCategoriesContext)
+        public ProductManagerController(IRepository<Product> productContext, IRepository<ProductCategory> productCategoriesContext)
         {
             context = productContext;
             productCategories = productCategoriesContext;
@@ -47,7 +47,7 @@ namespace MyShop.WebUI.Controllers
                 {
                     context.Insert(productToAdd.Product);
                     context.Commit();
-                    return RedirectToAction("Index", "ProductManager");
+                    return RedirectToAction("Index");
                 }
                 else
                 {
