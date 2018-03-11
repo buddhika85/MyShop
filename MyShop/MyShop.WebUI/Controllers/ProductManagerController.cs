@@ -41,16 +41,24 @@ namespace MyShop.WebUI.Controllers
         [HttpPost]
         public ActionResult Create(ProductManagerViewModel productToAdd)
         {
-            if (ModelState.IsValid)
+            try
             {
-                context.Insert(productToAdd.Product);
-                context.Commit();
-                return RedirectToAction("Index", "ProductManager");
+                if (ModelState.IsValid)
+                {
+                    context.Insert(productToAdd.Product);
+                    context.Commit();
+                    return RedirectToAction("Index", "ProductManager");
+                }
+                else
+                {
+                    return View(productToAdd);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return View(productToAdd);
-            }
+
+                throw;
+            }            
         }
 
         [HttpGet]
